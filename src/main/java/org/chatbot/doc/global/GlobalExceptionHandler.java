@@ -15,10 +15,10 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException  e) {
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
         log.error("[CustomException] {}", e.getMessage());
         return ResponseEntity
-                .badRequest()
+                .status(e.getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
