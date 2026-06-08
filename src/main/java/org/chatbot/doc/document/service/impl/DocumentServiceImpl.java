@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.chatbot.doc.document.service.DocumentService;
 import org.chatbot.doc.global.exception.CustomException;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.document.DocumentReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
+import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.Resource;
@@ -24,18 +26,17 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public int uploadDocument(MultipartFile file) {
         validDataFile(file);
-        // TODO 파일 확장 추가 (TikaDocumentReader)
+
         try{
             Resource resource = file.getResource();
-            PagePdfDocumentReader reader = new PagePdfDocumentReader(resource);
-            List<Document> documents = reader.read();
+            List<Document> documents = getDocumentReader(file.getOriginalFilename(), resource).read();
 
             log.info("[DocumentService] PDF 파싱 완료 - 파일명 : {}, 페이지수 : {}",file.getOriginalFilename(), documents.size());
 
             TokenTextSplitter splitter = TokenTextSplitter.builder()
                     // 청크 하나의 최대 토큰 수
                     // 512토큰 = 대략 영어 400단어, 한글 200~300자
-                    .withChunkSize(512)
+                    .withChunkSize(256)
                     // 청크의 최소 문자 수
                     // 128자 미만이면 너무 짧아서 의미없음 -> 앞 청크랑 합치기
                     .withMinChunkSizeChars(128)
@@ -64,14 +65,29 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    private DocumentReader getDocumentReader(String fileName, Resource resource) {
+        if(fileName.toLowerCase().endsWith(".pdf")) {
+            return new PagePdfDocumentReader(resource);
+        }
+
+        return new TikaDocumentReader(resource);
+    }
+
     private void validDataFile(MultipartFile file) {
         if(file == null || file.isEmpty()) {
             throw CustomException.badRequest("파일이 없습니다.");
         }
 
-        String originFileName = file.getOriginalFilename();
-        if(originFileName == null || !originFileName.toLowerCase().endsWith(".pdf")) {
-            throw CustomException.badRequest("PDF파일만 업로드 가능합니다.");
+        String filename = file.getOriginalFilename();
+        if (!filename.endsWith(".pdf") &&
+                !filename.endsWith(".docx") &&
+                !filename.endsWith(".doc") &&
+                !filename.endsWith(".xlsx") &&
+                !filename.endsWith(".xls") &&
+                !filename.endsWith(".pptx") &&
+                !filename.endsWith(".txt") &&
+                !filename.endsWith(".hwp")) {
+            throw CustomException.badRequest("지원하지 않는 파일 형식입니다. (PDF, Word, Excel, PPT, TXT, HWP)");
         }
     }
 }
