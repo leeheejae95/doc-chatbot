@@ -10,7 +10,7 @@ spring:
           model: nomic-embed-text
     vectorstore:
       pgvector:
-        index-type: HNSW
+        index-type: HNSW # 수백만 건도 밀리초 단위로 검색해줌
         distance-type: COSINE_DISTANCE
         dimensions: 768
         initialize-schema: true
