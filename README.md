@@ -1,13 +1,13 @@
 # 📚 Doc Chatbot - 사내 기술문서 RAG 검색 챗봇
 
 > Spring AI + Ollama + pgvector 기반의 사내 기술문서 검색 챗봇
-> PDF 문서를 업로드하면 자연어로 질문하고 답변을 받을 수 있습니다.
+> 문서를 업로드하면 자연어로 질문하고 답변을 받을 수 있습니다.
 
 <br>
 
 ## 🚀 주요 기능
 
-- **PDF 문서 업로드** - 기술 문서, 연동 스펙, API 명세서 등 업로드
+- **문서 업로드** - 기술 문서, 연동 스펙, API 명세서 등 업로드
 - **벡터 임베딩 저장** - 문서를 청크 단위로 분할 후 pgvector에 저장
 - **자연어 검색** - 질문과 유사한 문서 청크를 코사인 유사도로 검색
 - **AI 답변 생성** - 검색된 컨텍스트 기반으로 llama3.2가 답변 생성
@@ -37,7 +37,7 @@
     ▼
 [REST API - Spring Boot]
     │
-    ├── PDF 업로드 → Apache PDFBox 파싱
+    ├── 문서 업로드 → Apache 파싱
     │                    │
     │               청크 분할 & 임베딩
     │                    │
@@ -60,7 +60,7 @@
 src/main/java/org/chatbot/doc/
 ├── config/                         # 설정
 ├── document/
-│   ├── controller/                 # PDF 업로드 API
+│   ├── controller/                 # 믄서 업로드 API
 │   └── service/                    # 문서 파싱 & 임베딩 저장
 ├── chat/
 │   ├── controller/                 # 질문 API
