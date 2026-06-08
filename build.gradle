@@ -27,9 +27,7 @@ dependencyManagement {
 }
 
 dependencies {
-//    implementation 'org.springframework.boot:spring-boot-starter'
-//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // Ollama
@@ -40,6 +38,9 @@ dependencies {
 
     // PDF 파싱
     implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
+
+    // Tika (PDF 외 다양한 문서 포맷 지원)
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
 
     // swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'

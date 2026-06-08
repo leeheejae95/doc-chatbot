@@ -23,8 +23,8 @@ public class ChatServiceImpl implements ChatService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
 
-    private static final int TOP_K = 3;
-    private static final double SIMILARITY_THRESHOLD = 0.3;
+    private static final int TOP_K = 5;
+    private static final double SIMILARITY_THRESHOLD = 0.7;
 
     @Override
     public ChatResponse chat(ChatRequest request) {
@@ -80,8 +80,10 @@ public class ChatServiceImpl implements ChatService {
     private String buildPrompt(String question, String context) {
         return String.format("""
                 당신은 사내 기술문서 전문 검색 도우미입니다.
-                아래 제공된 문서 내용을 기반으로 질문에 답변해주세요.
-                문서에 없는 내용은 "문서에서 찾을 수 없습니다"라고 답변하세요.
+                반드시 아래 [참조 문서] 내용만 기반으로 답변하세요.
+                답변은 한국어로 구체적이고 명확하게 작성하세요.
+                수치나 성과가 있으면 반드시 포함하세요.
+                문서에 없는 내용은 절대 추측하지 마세요.
                 
                 [참조 문서]
                 %s
