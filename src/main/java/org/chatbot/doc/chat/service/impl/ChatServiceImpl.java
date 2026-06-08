@@ -7,12 +7,14 @@ import org.chatbot.doc.chat.dto.response.ChatResponse;
 import org.chatbot.doc.chat.service.ChatService;
 import org.chatbot.doc.global.exception.CustomException;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,16 +25,20 @@ public class ChatServiceImpl implements ChatService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
 
-    private static final int TOP_K = 5;
-    private static final double SIMILARITY_THRESHOLD = 0.7;
+    private static final int TOP_K = 5; // 유사도가 높은 순으로 5개 청크 가져오기
+    private static final double SIMILARITY_THRESHOLD = 0.3; // 유사한게 0.3인거 전부 가져오기 (임베디드는 소수점 단위로 되어있음)
 
     @Override
     public ChatResponse chat(ChatRequest request) {
 
         validateRequest(request);
 
+        String conversationId = (request.getConversationId() != null && !request.getConversationId().isBlank())
+                ? request.getConversationId()
+                : UUID.randomUUID().toString();
+
         try{
-            // 1. 질문과 유사한 문서 청크 검색 (RAG)
+            // 1. 백터 디비에서 질문과 유사한 문서 청크 검색 (RAG)
             List<Document> references = vectorStore.similaritySearch(
                     SearchRequest.builder()
                             .query(request.getQuestion())
@@ -47,6 +53,7 @@ public class ChatServiceImpl implements ChatService {
                 return ChatResponse.builder()
                         .answer("업로드된 문서에서 관련 내용을 찾을 수 없습니다. 문서를 먼저 업로드해주세요.")
                         .referenceCount(0)
+                        .conversationId(conversationId)
                         .build();
             }
 
@@ -56,10 +63,13 @@ public class ChatServiceImpl implements ChatService {
                     .collect(Collectors.joining("\n\n---\n\n"));
 
             // 3. 프롬프트 구성 후 LLM호출
-            String prompt = buildPrompt(request.getQuestion(), context);
+//            String prompt = buildPrompt(request.getQuestion(), context);
+
             // 답변 생성 (LLM)
             String answer = chatClient.prompt()
-                    .user(prompt)
+                    .user(buildPrompt(request.getQuestion(),context))
+                    .advisors(advisor -> advisor
+                            .param(ChatMemory.CONVERSATION_ID, conversationId))
                     .call()
                     .content();
 
@@ -68,6 +78,7 @@ public class ChatServiceImpl implements ChatService {
             return ChatResponse.builder()
                     .answer(answer)
                     .referenceCount(references.size())
+                    .conversationId(conversationId)
                     .build();
 
 
