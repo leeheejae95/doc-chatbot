@@ -1,4 +1,4 @@
-package org.chatbot.doc.global;
+package org.chatbot.doc.global.response;
 
 import lombok.Getter;
 

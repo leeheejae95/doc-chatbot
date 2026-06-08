@@ -1,6 +1,8 @@
-package org.chatbot.doc.global;
+package org.chatbot.doc.global.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.chatbot.doc.global.exception.CustomException;
+import org.chatbot.doc.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
