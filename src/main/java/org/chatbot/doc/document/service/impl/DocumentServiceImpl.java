@@ -7,6 +7,7 @@ import org.chatbot.doc.document.entity.DocumentEntity;
 import org.chatbot.doc.document.repository.DocumentRepository;
 import org.chatbot.doc.document.service.DocumentService;
 import org.chatbot.doc.global.exception.CustomException;
+import org.chatbot.doc.global.exception.ErrorCode;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
@@ -36,7 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         String fileName = file.getOriginalFilename();
         if(documentRepository.findByFileName(fileName).isPresent()) {
-            throw CustomException.badRequest("이미 업로드된 파일입니다. 삭제후 다시 업로드 하시기 바랍니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_NOT_FOUND);
         }
 
         try{
@@ -81,7 +82,7 @@ public class DocumentServiceImpl implements DocumentService {
             return chunks.size();
         } catch(Exception e) {
             log.error("[DocumentService] 문서 업로드 실패 - 파일명 : {}, 원인 : {}", file.getOriginalFilename(), e.getMessage());
-            throw CustomException.internalError("문서 처리중 오류 발생");
+            throw new CustomException(ErrorCode.DOCUMENT_PROCESSING_ERROR);
         }
     }
 
@@ -94,7 +95,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional
     public void deleteDocument(String id) {
         DocumentEntity documentEntity = documentRepository.findById(id)
-                .orElseThrow(() -> CustomException.notFound("존재하지 않는 문서 입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUNT));
 
         jdbcTemplate.update("DELETE FROM vector_store WHERE metadata->>'document_id' = ?", id);
 
@@ -118,7 +119,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     private void validDataFile(MultipartFile file) {
         if(file == null || file.isEmpty()) {
-            throw CustomException.badRequest("파일이 없습니다.");
+            throw new CustomException(ErrorCode.FILE_NOT_FOUND);
         }
 
         String filename = file.getOriginalFilename();
@@ -130,7 +131,7 @@ public class DocumentServiceImpl implements DocumentService {
                 !filename.endsWith(".pptx") &&
                 !filename.endsWith(".txt") &&
                 !filename.endsWith(".hwp")) {
-            throw CustomException.badRequest("지원하지 않는 파일 형식입니다. (PDF, Word, Excel, PPT, TXT, HWP)");
+            throw new CustomException(ErrorCode.UNSUPPORTED_FILE_TYPE);
         }
     }
 }

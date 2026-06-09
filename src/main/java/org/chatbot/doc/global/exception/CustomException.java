@@ -19,6 +19,12 @@ public class CustomException extends RuntimeException{
         this.code = code;
     }
 
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.status = errorCode.getHttpStatus();
+        this.code = errorCode.getCode();
+    }
+
     public static CustomException notFound(String message) {
         return new CustomException(HttpStatus.NOT_FOUND, "NOT_FOUND", message);
     }

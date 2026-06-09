@@ -6,6 +6,7 @@ import org.chatbot.doc.chat.dto.request.ChatRequest;
 import org.chatbot.doc.chat.dto.response.ChatResponse;
 import org.chatbot.doc.chat.service.ChatService;
 import org.chatbot.doc.global.exception.CustomException;
+import org.chatbot.doc.global.exception.ErrorCode;
 import org.chatbot.doc.global.response.ApiResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -53,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
 
             if (references.isEmpty()) {
                 return ChatResponse.builder()
-                        .answer("업로드된 문서에서 관련 내용을 찾을 수 없습니다. 문서를 먼저 업로드해주세요.")
+                        .answer("업로드된 문서에서 관련된 내용을 찾을수 없습니다.")
                         .referenceCount(0)
                         .conversationId(conversationId)
                         .build();
@@ -86,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
 
         } catch (Exception e) {
             log.error("[ChatService] 답변 생성 실패 - 원인: {}", e.getMessage());
-            throw CustomException.internalError("답변 생성 중 오류가 발생했습니다.");
+            throw new CustomException(ErrorCode.CHAT_PROCESSING_ERROR);
         }
     }
 
@@ -143,7 +144,7 @@ public class ChatServiceImpl implements ChatService {
 
     private void validateRequest (ChatRequest request) {
         if(request == null || request.getQuestion().isEmpty() || request.getQuestion().isBlank()) {
-            throw CustomException.badRequest("질문을 입력해주세요.");
+            throw new CustomException(ErrorCode.QUESTION_REQUIRED);
         }
     }
 }

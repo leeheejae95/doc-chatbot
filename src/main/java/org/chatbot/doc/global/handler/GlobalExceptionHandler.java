@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         log.error("[CustomException] {}", e.getMessage());
         return ResponseEntity
                 .status(e.getStatus())
-                .body(ApiResponse.fail(e.getMessage()));
+                .body(ApiResponse.fail(e.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
         log.error("[MaxUploadSizeExceededException] {}", e.getMessage());
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.fail("파일 크기가 너무 큽니다."));
+                .body(ApiResponse.fail("C003","파일 크기가 너무 큽니다."));
     }
 
     @ExceptionHandler(Exception.class)
@@ -37,6 +37,6 @@ public class GlobalExceptionHandler {
         log.error("[Exception] {}", e.getMessage());
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.fail("서버 오류 발생"));
+                .body(ApiResponse.fail("C002","서버 오류 발생"));
     }
 }
