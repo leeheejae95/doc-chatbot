@@ -83,6 +83,7 @@ src/main/java/org/chatbot/doc/
 
 ### 사전 요구사항
 - Java 21
+- IntelliJ IDEA
 - Docker Desktop
 - Ollama
 
