@@ -64,7 +64,6 @@
 - Spring AI 공식 지원으로 별도 클라이언트 구현 불필요
 - 기존 PostgreSQL에 확장 추가만으로 벡터 검색 가능 (추가 인프라 비용 없음)
 - HNSW 인덱스로 대용량 데이터 고속 검색 지원
-- Pinecone, Milvus, Weaviate 대비 로컬 환경 구성 용이
 
 ### Cosine Distance 선택 근거
 - 텍스트 유사도는 벡터의 크기보다 **방향(의미)**이 중요
