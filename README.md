@@ -20,6 +20,7 @@
 |------|------|
 | Language | Java 21 |
 | Framework | Spring Boot 4.0.6 |
+| Framework | JPA |
 | AI Framework | Spring AI 2.0.0-M4 |
 | LLM | Ollama (llama3.2) |
 | Embedding | Ollama (nomic-embed-text) |
