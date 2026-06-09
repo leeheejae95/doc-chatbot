@@ -21,6 +21,7 @@
 | Language | Java 21 |
 | Framework | Spring Boot 4.0.6 |
 | Framework | JPA |
+| Framework | WebFlux |
 | AI Framework | Spring AI 2.0.0-M4 |
 | LLM | Ollama (llama3.2) |
 | Embedding | Ollama (nomic-embed-text) |
@@ -61,7 +62,9 @@
 src/main/java/org/chatbot/doc/
 ├── config/                         # 설정
 ├── document/
-│   ├── controller/                 # 믄서 업로드 API
+├   ├── entity/                     # 문서 엔티티
+├   ├── repository/                 # 문서 JpaRepository
+│   ├── controller/                 # 문서 업로드 API
 │   └── service/                    # 문서 파싱 & 임베딩 저장
 ├── chat/
 ├   ├── config/                     # Chat config설정
