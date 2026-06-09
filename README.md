@@ -63,10 +63,13 @@ src/main/java/org/chatbot/doc/
 │   ├── controller/                 # 믄서 업로드 API
 │   └── service/                    # 문서 파싱 & 임베딩 저장
 ├── chat/
+├   ├── config/                     # Chat config설정
+├   ├── dto/                        # 요청, 응답 DTO
 │   ├── controller/                 # 질문 API
 │   └── service/                    # RAG 검색 & 답변 생성
 └── global/
     ├── exception/                  # 공통 예외 처리
+    ├── handler                     # 전역 예외 처리 핸들러
     └── response/                   # 공통 응답 포맷
 ```
 
