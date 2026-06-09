@@ -6,12 +6,14 @@ import org.chatbot.doc.chat.dto.request.ChatRequest;
 import org.chatbot.doc.chat.dto.response.ChatResponse;
 import org.chatbot.doc.chat.service.ChatService;
 import org.chatbot.doc.global.exception.CustomException;
+import org.chatbot.doc.global.response.ApiResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.UUID;
@@ -86,6 +88,39 @@ public class ChatServiceImpl implements ChatService {
             log.error("[ChatService] 답변 생성 실패 - 원인: {}", e.getMessage());
             throw CustomException.internalError("답변 생성 중 오류가 발생했습니다.");
         }
+    }
+
+    @Override
+    public Flux<String> stream(ChatRequest request) { // webflux는 생성즉시 답변가능
+        validateRequest(request);
+
+        String conversationId = (request.getConversationId() != null && request.getConversationId().isBlank())
+                ? request.getConversationId() : UUID.randomUUID().toString();
+
+        List<Document> references = vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(request.getQuestion())
+                        .topK(TOP_K)
+                        .similarityThreshold(SIMILARITY_THRESHOLD)
+                        .build()
+        );
+
+        log.info("[ChatService] 스트리밍 - 유사 문서 검색 완료 - 청크수:{}", references.size());
+
+        if(references.isEmpty()) {
+            return Flux.just("업로드된 문서에서 관련된 내용을 찾을수 없습니다.");
+        }
+
+        // 컨텍스트 조합
+        String context = references.stream()
+                .map(Document::getText)
+                .collect(Collectors.joining("\n\n---\n\n"));
+
+        return chatClient.prompt()
+                .user(buildPrompt(request.getQuestion(), context))
+                .advisors(advisor-> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .stream()
+                .content();
     }
 
     private String buildPrompt(String question, String context) {
