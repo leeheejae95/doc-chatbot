@@ -1,6 +1,9 @@
 package org.chatbot.doc.document.service;
 
+import org.chatbot.doc.document.entity.DocumentEntity;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 
 public interface DocumentService {
 
@@ -10,4 +13,10 @@ public interface DocumentService {
      * @return 저장된 청크 수
      */
     int uploadDocument(MultipartFile file);
+
+    // 문서 목록 조회
+    List<DocumentEntity> getDocuments();
+
+    // 문서삭제
+    void deleteDocument(String id);
 }
