@@ -23,6 +23,13 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  jpa:
+    hibernate:
+      ddl-auto: update       # 테이블 자동 생성/수정
+    show-sql: true           # SQL 로그 출력
+    properties:
+      hibernate:
+        format_sql: true     # SQL 보기 좋게 출력
 
 springdoc:
   swagger-ui:
