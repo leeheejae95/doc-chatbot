@@ -40,7 +40,7 @@
 |------|------|
 | Chunk Size | 256토큰 (한글 기준 100~150자) |
 | 임베딩 차원 | 768차원 (nomic-embed-text) |
-| TopK | 5 (3/5/10 실험 후 최적값 선정) |
+| TopK | 5 (3/5/10 테스트 후 최적값 선정) |
 | Similarity Threshold | 0.3 (정확도와 재현율 균형점) |
 | 인덱스 | HNSW (대용량 고속 검색) |
 | Distance | Cosine Distance |
