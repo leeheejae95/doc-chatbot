@@ -112,17 +112,17 @@
 
 ```
 src/main/java/org/chatbot/doc/
-├── config/                         # 전역 설정 (ChatClient, Swagger)
+├── config/                         # Swagger 설정
+├── chat/
+│   ├── config/                     # ChatClient 설정
+│   ├── dto/                        # 요청/응답 DTO
+│   ├── controller/                 # 질문 API
+│   └── service/                    # RAG 검색 & 답변 생성
 ├── document/
 │   ├── entity/                     # 문서 엔티티 (JPA)
 │   ├── repository/                 # 문서 JpaRepository
 │   ├── controller/                 # 문서 관리 API
 │   └── service/                    # 문서 파싱 & 임베딩 저장
-├── chat/
-│   ├── config/                     # chat config 설정
-│   ├── dto/                        # 요청/응답 DTO
-│   ├── controller/                 # 질문 API (동기/스트리밍)
-│   └── service/                    # RAG 검색 & 답변 생성
 └── global/
     ├── exception/                  # ErrorCode Enum, CustomException
     ├── filter/                     # MDC 로깅 필터
