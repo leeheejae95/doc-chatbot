@@ -1,5 +1,10 @@
 spring:
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always # 테이블 자동 생성
     ollama:
       base-url: http://localhost:11434
       chat:
@@ -11,7 +16,7 @@ spring:
     vectorstore:
       pgvector:
         index-type: HNSW # 수백만 건도 밀리초 단위로 검색해줌
-        distance-type: COSINE_DISTANCE
+        distance-type: COSINE_DISTANCE # 문장의 의미가 얼마나 비슷한지 하기위해
         dimensions: 768
         initialize-schema: true
   datasource:
