@@ -206,5 +206,5 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 - **Claude API 교체** - 답변 품질 향상 및 한국어 이해도 개선
 - **RetrievalAugmentationAdvisor 적용** - VectorStoreDocumentRetriever 기반 RAG 파이프라인 교체 완료
 - **JdbcChatMemoryRepository** - 대화 히스토리 PostgreSQL 영구 저장 완료
-- **GitHub Actions CI/CD** - 자동 빌드 및 테스트
+- **GitHub Actions CI/CD** - 자동 빌드 및 테스트 완료
 - **실제 성능 수치 측정** - 100페이지 이상 문서 업로드 시간, HNSW 적용 전후 검색 응답시간 측정
