@@ -204,7 +204,7 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 ## 🔮 개선 과제
 
 - **Claude API 교체** - 답변 품질 향상 및 한국어 이해도 개선
-  (현재 llama3.2 로컬 모델 응답시간 87초로 Claude, GPT... API 교체 시 대폭 개선 예상)
+  (현재 llama3.2 로컬 모델 응답시간 87초로 Claude, GPT등 API 교체 시 대폭 개선 예상)
 - **RetrievalAugmentationAdvisor 적용** - VectorStoreDocumentRetriever 기반 RAG 파이프라인 교체 완료
 - **JdbcChatMemoryRepository** - 대화 히스토리 PostgreSQL 영구 저장 완료
 - **GitHub Actions CI/CD** - 자동 빌드 및 단위 테스트 완료
