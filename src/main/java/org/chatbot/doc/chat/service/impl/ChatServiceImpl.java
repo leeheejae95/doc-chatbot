@@ -10,6 +10,7 @@ import org.chatbot.doc.global.exception.ErrorCode;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import reactor.core.publisher.Flux;
 
 import java.util.UUID;
@@ -30,6 +31,9 @@ public class ChatServiceImpl implements ChatService {
                 : UUID.randomUUID().toString();
 
         try{
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             // 답변 생성 (LLM)
             String answer = chatClient.prompt()
                     .user(request.getQuestion())
@@ -38,7 +42,10 @@ public class ChatServiceImpl implements ChatService {
                     .call()
                     .content();
 
-            log.info("[ChatService] 답변 생성 완료 - conversationId : {}", conversationId);
+            stopWatch.stop();
+            log.info("[ChatService] 답변 생성 완료 - conversationId: {}, 응답시간: {}ms",
+                    conversationId, stopWatch.getTotalTimeMillis());
+//            log.info("[ChatService] 답변 생성 완료 - conversationId : {}", conversationId);
 
             return ChatResponse.builder()
                     .answer(answer)

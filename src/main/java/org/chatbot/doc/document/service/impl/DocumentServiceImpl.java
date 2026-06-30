@@ -17,6 +17,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -75,9 +76,15 @@ public class DocumentServiceImpl implements DocumentService {
                     .build());
             chunks.forEach(chunk -> chunk.getMetadata().put("document_id", documentEntity.getId()));
 
-            vectorStore.add(chunks); // 백터 DB에 저장
-
             log.info("[DocumentService] .백터 저장 완료 - 파일명 {}", file.getOriginalFilename());
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            vectorStore.add(chunks); // 백터 DB에 저장
+            stopWatch.stop();
+
+            log.info("[DocumentService] 임베딩 저장 완료 - 파일명: {}, 청크수: {}, 저장시간: {}ms",
+                    file.getOriginalFilename(), chunks.size(), stopWatch.getTotalTimeMillis());
 
             return chunks.size();
         } catch(Exception e) {
