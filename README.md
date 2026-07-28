@@ -228,7 +228,7 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 ## 📈 핵심 설계 포인트
 
 - **인터페이스 기반 설계** - ChatService, DocumentService 인터페이스 추상화로 LLM 교체 용이
-  - Ollama → Claude API → OpenAI 전환 시 구현체(Impl)만 교체, Controller/비즈니스 로직 수정 불필요
+  Ollama → Claude API → OpenAI 전환 시 구현체(Impl)만 교체, Controller/비즈니스 로직 수정 불필요
 - **Advisor 체인 설계** - MessageChatMemoryAdvisor와  RetrievalAugmentationAdvisor 조합으로 RAG 파이프라인 모듈화
 - **출처 반환** - RetrievalAugmentationAdvisor에서 검색된 문서 메타데이터를 응답에 포함하여 신뢰도 향상
 - **Entity에서 DTO 분리** - DocumentResponse DTO로 Entity 직접 노출 제거 (실무 안티패턴 개선)
