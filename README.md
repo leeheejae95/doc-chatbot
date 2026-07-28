@@ -11,9 +11,12 @@
 - **벡터 임베딩 저장** - 문서를 청크 단위로 분할 후 pgvector에 저장
 - **자연어 검색** - 질문과 유사한 문서 청크를 코사인 유사도로 검색
 - **AI 답변 생성** - 검색된 컨텍스트 기반으로 llama3.2가 답변 생성
+- **출처 반환** - 답변에 참조한 문서명, 청크 내용, 유사도 점수 포함
 - **대화 히스토리** - conversationId 기반 멀티턴 대화 지원
+- **대화 관리** - 대화 목록 조회 및 삭제 (채팅 이력 함께 제거)
 - **스트리밍 응답** - SSE 기반 실시간 타이핑 효과 응답
 - **문서 관리** - 업로드 문서 목록 조회 및 삭제 (청크 동시 삭제)
+- **JWT 인증** - Spring Security + JWT 기반 회원가입/로그인
 
 <br>
 
@@ -24,6 +27,7 @@
 | Language | Java 21 | |
 | Framework | Spring Boot 4.0.6 | |
 | ORM | Spring Data JPA | |
+| Security | Spring Security & JWT | 인증/인가 |
 | AI Framework | Spring AI 2.0.0-M4 | RAG 파이프라인 통합 지원 |
 | LLM | Ollama (llama3.2) | 로컬 실행 개발 가능 |
 | Embedding | Ollama (nomic-embed-text) | 한국어 지원 |
@@ -99,6 +103,9 @@ RAG 파이프라인 자체는 정상 동작하지만, 테스트 중 llama3.2 3B 
 ```
 [클라이언트]
     │
+    ▼ JWT 토큰 인증
+[Spring Security Filter]
+    │
     ▼
 [REST API - Spring Boot]
     │
@@ -115,17 +122,16 @@ RAG 파이프라인 자체는 정상 동작하지만, 테스트 중 llama3.2 3B 
     │
     └── 질문 입력
             │
-        질문 → 768차원 벡터 변환
+        MessageChatMemoryAdvisor (대화 히스토리 자동 추가)
             │
-        Cosine 유사도 검색 (TopK=5, Threshold=0.3)
+        RetrievalAugmentationAdvisor
+            │ └ VectorStoreDocumentRetriever (TopK=5, Threshold=0.3)
             │
-        관련 문서 청크 추출
-            │
-        Prompt Augmentation (질문 + 청크 컨텍스트 조합)
+        System Prompt 적용 (한국어 강제, 문서 기반 답변 강제)
             │
         [Ollama llama3.2 - 답변 생성]
             │
-        SSE 스트리밍 반환 (WebFlux Flux<String>)
+        출처(SourceDocument) + SSE 스트리밍 반환
 ```
 
 <br>
@@ -135,14 +141,28 @@ RAG 파이프라인 자체는 정상 동작하지만, 테스트 중 llama3.2 3B 
 ```
 src/main/java/org/chatbot/doc/
 ├── config/                         # Swagger 설정
-├── chat/
-│   ├── config/                     # ChatClient 설정
+├── auth/
+│   ├── controller/                 # 회원가입/로그인 API
 │   ├── dto/                        # 요청/응답 DTO
-│   ├── controller/                 # 질문 API
+│   ├── entity/                     # UserEntity, Role
+│   ├── repository/                 # UserRepository
+│   ├── security/                   # JwtUtil, JwtFilter, CustomUserDetails
+│   └── service/                    # 인증 서비스
+├── chat/
+│   ├── config/                     # ChatClient, Advisor 설정
+│   ├── dto/                        # 요청/응답 DTO (SourceDocument 포함)
+│   ├── controller/                 # 질문 API (동기/스트리밍)
 │   └── service/                    # RAG 검색 & 답변 생성
+├── conversation/
+│   ├── controller/                 # 대화 관리 API
+│   ├── dto/                        # 대화 응답 DTO
+│   ├── entity/                     # ConversationEntity
+│   ├── repository/                 # ConversationRepository
+│   └── service/                    # 대화 목록/삭제 서비스
 ├── document/
 │   ├── entity/                     # 문서 엔티티 (JPA)
 │   ├── repository/                 # 문서 JpaRepository
+│   ├── dto/                        # DocumentResponse DTO
 │   ├── controller/                 # 문서 관리 API
 │   └── service/                    # 문서 파싱 & 임베딩 저장
 └── global/
@@ -188,7 +208,14 @@ docker-compose up -d
 ```
 http://localhost:8080/swagger-ui.html
 ```
-
+### 6. API 사용 순서
+```
+1. POST /api/auth/signup  → 회원가입
+2. POST /api/auth/login   → 로그인 (JWT 토큰 발급)
+3. Swagger Authorize 버튼 → Bearer 토큰 입력
+4. POST /api/document/upload → 문서 업로드
+5. POST /api/chat/ask → 질문
+```
 <br>
 
 ## 📌 개발 배경
@@ -202,24 +229,31 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 
 - **인터페이스 기반 설계** - ChatService, DocumentService 인터페이스 추상화로 LLM 교체 용이
   - Ollama → Claude API → OpenAI 전환 시 구현체(Impl)만 교체, Controller/비즈니스 로직 수정 불필요
-- **ErrorCode Enum** - 도메인별 에러코드 체계화로 프론트 분기처리 지원
+- **Advisor 체인 설계** - MessageChatMemoryAdvisor와  RetrievalAugmentationAdvisor 조합으로 RAG 파이프라인 모듈화
+- **출처 반환** - RetrievalAugmentationAdvisor에서 검색된 문서 메타데이터를 응답에 포함하여 신뢰도 향상
+- **Entity에서 DTO 분리** - DocumentResponse DTO로 Entity 직접 노출 제거 (실무 안티패턴 개선)
+- **JWT 인증** - STATELESS 세션, JwtAuthenticationFilter로 요청마다 토큰 검증
+- **ErrorCode Enum** - 도메인별 에러코드 체계화 (D001~D005, Q001~Q003, CV001, A001~A003)
 - **전역 예외 처리** - GlobalExceptionHandler로 모든 예외를 일관된 ApiResponse 포맷으로 응답
 - **MDC 로깅** - 요청별 고유 requestId 부여로 동시 다중 요청 추적 가능
-- **@Transactional 원자성 보장** - 문서 업로드 시 documents 테이블과 vector_store 동시 성공/실패 처리
-- **대화 히스토리** - MessageWindowChatMemory로 최근 20개 메시지 유지, conversationId 없으면 자동 UUID 생성
-- **WebFlux 한정 사용** - 전체 리액티브가 아닌 SSE 스트리밍 응답(/chat/stream)에만 Flux<String> 적용
+- **@Transactional 원자성 보장** - 문서 업로드/삭제 시 documents 테이블과 vector_store 동시 성공/실패 처리
+- **대화 히스토리 영구 저장** - JdbcChatMemoryRepository로 PostgreSQL에 저장, 서버 재시작 후에도 유지
 
 <br>
 
 ## 🔌 API 명세
 
-| Method | URL | 설명 |
-|--------|-----|------|
-| POST | /api/document/upload | 문서 업로드 (중복 방지) |
-| GET | /api/document | 문서 목록 조회 (최신순) |
-| DELETE | /api/document/{id} | 문서 삭제 (vector_store 청크 동시 삭제) |
-| POST | /api/chat/ask | 질문 답변 (동기, JSON 응답) |
-| POST | /api/chat/stream | 질문 답변 (비동기, SSE 스트리밍) |
+| Method | URL | 설명 | 인증 |
+|--------|-----|------|------|
+| POST | /api/auth/signup | 회원가입 | 불필요 |
+| POST | /api/auth/login | 로그인 (JWT 발급) | 불필요 |
+| POST | /api/document/upload | 문서 업로드 (중복 방지) | JWT |
+| GET | /api/document | 문서 목록 조회 (최신순) | JWT |
+| DELETE | /api/document/{id} | 문서 삭제 (vector_store 청크 동시 삭제) | JWT |
+| POST | /api/chat/ask | 질문 답변 (동기, 출처 포함) | JWT |
+| POST | /api/chat/stream | 질문 답변 (비동기, SSE 스트리밍) | JWT |
+| GET | /api/conversation | 대화 목록 조회 | JWT |
+| DELETE | /api/conversation/{id} | 대화 삭제 (채팅 이력 함께 제거) | JWT |
 
 <br>
 
