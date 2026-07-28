@@ -1,5 +1,6 @@
 package org.chatbot.doc.service;
 
+import org.chatbot.doc.document.dto.response.DocumentResponse;
 import org.chatbot.doc.document.entity.DocumentEntity;
 import org.chatbot.doc.document.repository.DocumentRepository;
 import org.chatbot.doc.document.service.impl.DocumentServiceImpl;
@@ -62,7 +63,7 @@ public class DocumentServiceTest {
 
         given(documentRepository.findAllByOrderByCreatedAtDesc()).willReturn(documentEntityList);
 
-        List<DocumentEntity> result = documentService.getDocuments();
+        List<DocumentResponse> result = documentService.getDocuments();
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getFileName()).isEqualTo("EAI_스펙.pdf");

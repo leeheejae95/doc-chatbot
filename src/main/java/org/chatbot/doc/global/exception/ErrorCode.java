@@ -20,7 +20,10 @@ public enum ErrorCode {
     //챗봇
     QUESTION_REQUIRED(HttpStatus.BAD_REQUEST, "Q001", "질문을 입력해주세요."),
     DOCUMENT_NOT_UPLOADED(HttpStatus.BAD_REQUEST, "Q002", "업로드된 문서에서 관련된 내용을 찾을 수 없습니다."),
-    CHAT_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Q003", "답변 생성 중 오류가 발생했습니다.");
+    CHAT_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Q003", "답변 생성 중 오류가 발생했습니다."),
+
+    // 대화
+    CONVERSATION_NOT_FOUND(HttpStatus.NOT_FOUND, "CV001", "존재하지 않는 대화입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
