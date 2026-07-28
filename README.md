@@ -196,12 +196,12 @@ OLLAMA_MODELS = C:\ollama\models
 
 ### 3. pgvector 실행
 ```
-docker-compose up -d
+docker compose -f docker-compose/docker-compose.yml up -d
 ```
 
 ### 4. 애플리케이션 실행
 ```
-
+Intellij에서 DocApplication 실행
 ```
 
 ### 5. Swagger UI 접속
@@ -252,8 +252,8 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 | DELETE | /api/document/{id} | 문서 삭제 (vector_store 청크 동시 삭제) | JWT |
 | POST | /api/chat/ask | 질문 답변 (동기, 출처 포함) | JWT |
 | POST | /api/chat/stream | 질문 답변 (비동기, SSE 스트리밍) | JWT |
-| GET | /api/conversation | 대화 목록 조회 | JWT |
-| DELETE | /api/conversation/{id} | 대화 삭제 (채팅 이력 함께 제거) | JWT |
+| GET | /api/conversations | 대화 목록 조회 | JWT |
+| DELETE | /api/conversations/{id} | 대화 삭제 (채팅 이력 함께 제거) | JWT |
 
 <br>
 
@@ -261,7 +261,4 @@ SI/공공기관 개발 현장에서 표준 문서, API 명세서를 매번 수�
 
 - **Claude API 교체** - 답변 품질 향상 및 한국어 이해도 개선
   (현재 llama3.2 로컬 모델 응답시간 87초로 Claude, GPT등 API 교체 시 대폭 개선 예상)
-- **RetrievalAugmentationAdvisor 적용** - VectorStoreDocumentRetriever 기반 RAG 파이프라인 교체 완료
-- **JdbcChatMemoryRepository** - 대화 히스토리 PostgreSQL 영구 저장 완료
-- **GitHub Actions CI/CD** - 자동 빌드 및 단위 테스트 완료
 - **대용량 문서 성능 측정** - 100페이지 이상 문서에서 HNSW 적용 전후 검색 응답시간 비교 (현재는 데이터 규모가 작아 유의미한 차이 측정 어려움)
