@@ -3,7 +3,9 @@ package org.chatbot.doc.global.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.chatbot.doc.global.exception.CustomException;
 import org.chatbot.doc.global.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -30,6 +32,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ApiResponse.fail("C003","파일 크기가 너무 큽니다."));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException e) {
+        log.warn("[AccessDeniedException] {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.fail("A004", "접근 권한이 없습니다.")); // 403권한 체크
     }
 
     @ExceptionHandler(Exception.class)

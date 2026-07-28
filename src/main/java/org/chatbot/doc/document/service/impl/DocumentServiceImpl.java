@@ -3,6 +3,7 @@ package org.chatbot.doc.document.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.chatbot.doc.document.dto.response.DocumentResponse;
 import org.chatbot.doc.document.entity.DocumentEntity;
 import org.chatbot.doc.document.repository.DocumentRepository;
 import org.chatbot.doc.document.service.DocumentService;
@@ -74,7 +75,10 @@ public class DocumentServiceImpl implements DocumentService {
                     .fileType(fileType)
                     .chunkCount(chunks.size())
                     .build());
-            chunks.forEach(chunk -> chunk.getMetadata().put("document_id", documentEntity.getId()));
+            chunks.forEach(chunk -> {
+                chunk.getMetadata().put("document_id", documentEntity.getId());
+                chunk.getMetadata().put("file_name", file.getOriginalFilename());
+            });
 
             log.info("[DocumentService] .백터 저장 완료 - 파일명 {}", file.getOriginalFilename());
 
@@ -94,8 +98,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<DocumentEntity> getDocuments() {
-        return documentRepository.findAllByOrderByCreatedAtDesc();
+    public List<DocumentResponse> getDocuments() {
+        return documentRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(DocumentResponse::from)
+                .toList();
     }
 
     @Override
