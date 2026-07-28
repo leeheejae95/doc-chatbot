@@ -36,6 +36,10 @@ spring:
       hibernate:
         format_sql: true     # SQL 보기 좋게 출력
 
+jwt:
+  secret: doc-chatbot-jwt-secret-key-must-be-at-least-256bits-long-for-hs256
+  expiration: 86400000 # 24시간 (ms)
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
